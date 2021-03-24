@@ -4,6 +4,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/util"
 )
 
@@ -13,7 +14,7 @@ const (
 
 // Adapter provides the required methods for interacting with the loadpoint
 type Adapter interface {
-	Publish(key string, val interface{})
+	Publish(key msg.Message, val interface{})
 	SocEstimator() *Estimator
 	ActivePhases() int64
 	Voltage() float64
@@ -72,7 +73,7 @@ func (lp *Timer) StartRequired() bool {
 	lp.log.DEBUG.Printf("target charging active for %v: projected %v (%v remaining)", lp.Time, lp.finishAt, remainingDuration.Round(time.Minute))
 
 	lp.chargeRequired = lp.finishAt.After(lp.Time)
-	lp.Publish("timerActive", lp.chargeRequired)
+	lp.Publish(msg.TimerActive, lp.chargeRequired)
 
 	return lp.chargeRequired
 }
@@ -80,12 +81,12 @@ func (lp *Timer) StartRequired() bool {
 // active returns true if there is an active target charging request
 func (lp *Timer) active() bool {
 	inactive := lp.Time.IsZero() || lp.Time.Before(time.Now())
-	lp.Publish("timerSet", !inactive)
+	lp.Publish(msg.TimerSet, !inactive)
 
 	// reset active
 	if inactive && lp.chargeRequired {
 		lp.chargeRequired = false
-		lp.Publish("timerActive", lp.chargeRequired)
+		lp.Publish(msg.TimerActive, lp.chargeRequired)
 	}
 
 	return !inactive

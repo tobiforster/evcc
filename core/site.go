@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/andig/evcc/api"
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/push"
 	"github.com/andig/evcc/util"
 	"github.com/avast/retry-go"
@@ -179,7 +180,7 @@ func (site *Site) DumpConfig() {
 
 		lp.log.INFO.Printf("  meters:    charge %s", presence[lp.HasChargeMeter()])
 
-		lp.publish("chargeConfigured", lp.HasChargeMeter())
+		lp.publish(msg.ChargeConfigured, lp.HasChargeMeter())
 		if lp.HasChargeMeter() {
 			lp.log.INFO.Printf(meterCapabilities("charge", lp.chargeMeter))
 		}

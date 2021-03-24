@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/andig/evcc/api"
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/core/wrapper"
 )
 
@@ -46,7 +47,7 @@ func (lp *LoadPoint) SetMode(mode api.ChargeMode) {
 	// apply immediately
 	if lp.Mode != mode {
 		lp.Mode = mode
-		lp.publish("mode", mode)
+		lp.publish(msg.Mode, mode)
 		lp.requestUpdate()
 	}
 }
@@ -72,7 +73,7 @@ func (lp *LoadPoint) SetTargetSoC(soc int) error {
 	// apply immediately
 	if lp.SoC.Target != soc {
 		lp.SoC.Target = soc
-		lp.publish("targetSoC", soc)
+		lp.publish(msg.TargetSoC, soc)
 		lp.requestUpdate()
 	}
 
@@ -100,7 +101,7 @@ func (lp *LoadPoint) SetMinSoC(soc int) error {
 	// apply immediately
 	if lp.SoC.Min != soc {
 		lp.SoC.Min = soc
-		lp.publish("minSoC", soc)
+		lp.publish(msg.MinSoC, soc)
 		lp.requestUpdate()
 	}
 
@@ -116,8 +117,8 @@ func (lp *LoadPoint) SetTargetCharge(finishAt time.Time, targetSoC int) {
 
 	// apply immediately
 	// TODO check reset of targetSoC
-	lp.publish("targetTime", finishAt)
-	lp.publish("targetSoC", targetSoC)
+	lp.publish(msg.TargetTime, finishAt)
+	lp.publish(msg.TargetSoC, targetSoC)
 
 	lp.requestUpdate()
 }
@@ -133,8 +134,8 @@ func (lp *LoadPoint) RemoteControl(source string, demand RemoteDemand) {
 	if lp.remoteDemand != demand {
 		lp.remoteDemand = demand
 
-		lp.publish("remoteDisabled", demand)
-		lp.publish("remoteDisabledSource", source)
+		lp.publish(msg.RemoteDisabled, demand)
+		lp.publish(msg.RemoteDisabledSource, source)
 
 		lp.requestUpdate()
 	}

@@ -1,6 +1,9 @@
 package core
 
-import "github.com/andig/evcc/core/soc"
+import (
+	"github.com/andig/evcc/core/msg"
+	"github.com/andig/evcc/core/soc"
+)
 
 type adapter struct {
 	lp *LoadPoint
@@ -10,7 +13,7 @@ func (lp *LoadPoint) adapter() soc.Adapter {
 	return &adapter{lp: lp}
 }
 
-func (a *adapter) Publish(key string, val interface{}) {
+func (a *adapter) Publish(key msg.Message, val interface{}) {
 	a.lp.publish(key, val)
 }
 
