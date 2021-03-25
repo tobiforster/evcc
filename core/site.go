@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 	"sync"
 	"time"
 
@@ -129,7 +130,7 @@ func meterCapabilities(name string, meter interface{}) string {
 
 // DumpConfig site configuration
 func (site *Site) DumpConfig() {
-	site.publish("title", site.Title)
+	site.publish(msg.Title, site.Title)
 
 	site.log.INFO.Println("site config:")
 	site.log.INFO.Printf("  meters:    grid %s pv %s battery %s",
@@ -138,17 +139,17 @@ func (site *Site) DumpConfig() {
 		presence[site.batteryMeter != nil],
 	)
 
-	site.publish("gridConfigured", site.gridMeter != nil)
+	site.publish(msg.GridConfigured, site.gridMeter != nil)
 	if site.gridMeter != nil {
 		site.log.INFO.Println(meterCapabilities("grid", site.gridMeter))
 	}
 
-	site.publish("pvConfigured", site.pvMeter != nil)
+	site.publish(msg.PvConfigured, site.pvMeter != nil)
 	if site.pvMeter != nil {
 		site.log.INFO.Println(meterCapabilities("pv", site.pvMeter))
 	}
 
-	site.publish("batteryConfigured", site.batteryMeter != nil)
+	site.publish(msg.BatteryConfigured, site.batteryMeter != nil)
 	if site.batteryMeter != nil {
 		_, ok := site.batteryMeter.(api.Battery)
 		site.log.INFO.Println(
@@ -157,7 +158,7 @@ func (site *Site) DumpConfig() {
 		)
 
 		if ok {
-			site.publish("prioritySoC", site.PrioritySoC)
+			site.publish(msg.PrioritySoC, site.PrioritySoC)
 		}
 	}
 
@@ -200,20 +201,14 @@ func (site *Site) DumpConfig() {
 }
 
 // publish sends values to UI and databases
-func (site *Site) publish(key string, val interface{}) {
-	// test helper
-	if site.uiChan == nil {
-		return
-	}
-
-	site.uiChan <- util.Param{
-		Key: key,
-		Val: val,
+func (site *Site) publish(msg msg.Message, val interface{}) {
+	if site.uiChan != nil {
+		site.uiChan <- util.Param{Key: msg.Key, Val: val}
 	}
 }
 
 // updateMeter updates and publishes single meter
-func (site *Site) updateMeter(name string, meter api.Meter, power *float64) error {
+func (site *Site) updateMeter(msg msg.Message, meter api.Meter, power *float64) error {
 	value, err := meter.CurrentPower()
 	if err != nil {
 		return err
@@ -221,25 +216,27 @@ func (site *Site) updateMeter(name string, meter api.Meter, power *float64) erro
 
 	*power = value // update value if no error
 
+	name := strings.TrimSuffix(msg.Key, "Power")
 	site.log.DEBUG.Printf("%s power: %.0fW", name, *power)
-	site.publish(name+"Power", *power)
+	site.publish(msg, *power)
 
 	return nil
 }
 
 // updateMeter updates and publishes single meter
 func (site *Site) updateMeters() error {
-	retryMeter := func(s string, m api.Meter, f *float64) error {
+	retryMeter := func(msg msg.Message, m api.Meter, f *float64) error {
 		if m == nil {
 			return nil
 		}
 
 		err := retry.Do(func() error {
-			return site.updateMeter(s, m, f)
+			return site.updateMeter(msg, m, f)
 		}, retryOptions...)
 
 		if err != nil {
-			err = fmt.Errorf("updating %s meter: %v", s, err)
+			name := strings.TrimSuffix(msg.Key, "Power")
+			err = fmt.Errorf("updating %s meter: %v", name, err)
 			site.log.ERROR.Println(err)
 		}
 
@@ -247,11 +244,11 @@ func (site *Site) updateMeters() error {
 	}
 
 	// pv meter is not critical for operation
-	_ = retryMeter("pv", site.pvMeter, &site.pvPower)
+	_ = retryMeter(msg.PvPower, site.pvMeter, &site.pvPower)
 
-	err := retryMeter("grid", site.gridMeter, &site.gridPower)
+	err := retryMeter(msg.GridPower, site.gridMeter, &site.gridPower)
 	if err == nil {
-		err = retryMeter("battery", site.batteryMeter, &site.batteryPower)
+		err = retryMeter(msg.BatteryPower, site.batteryMeter, &site.batteryPower)
 	}
 
 	// currents
@@ -259,7 +256,7 @@ func (site *Site) updateMeters() error {
 		i1, i2, i3, err := phaseMeter.Currents()
 		if err == nil {
 			site.log.TRACE.Printf("grid currents: %.3gA", []float64{i1, i2, i3})
-			site.publish("gridCurrents", []float64{i1, i2, i3})
+			site.publish(msg.GridCurrents, []float64{i1, i2, i3})
 		}
 	}
 
@@ -286,7 +283,7 @@ func (site *Site) sitePower() (float64, error) {
 			site.log.ERROR.Printf("updating battery soc: %v", err)
 		} else {
 			site.log.DEBUG.Printf("battery soc: %.0f%%", soc)
-			site.publish("batterySoC", math.Trunc(soc))
+			site.publish(msg.BatterySoC, math.Trunc(soc))
 
 			site.Lock()
 			defer site.Unlock()

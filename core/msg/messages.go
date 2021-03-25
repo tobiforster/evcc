@@ -7,6 +7,25 @@ type Message struct {
 	Type             reflect.Kind
 }
 
+// global messages
+var (
+	Title = Message{"title", "", reflect.Bool}
+)
+
+// site messages
+var (
+	BatteryConfigured = Message{"batteryConfigured", "", reflect.Bool}
+	BatteryPower      = Message{"batteryPower", "", reflect.Float64}
+	BatterySoC        = Message{"batterySoC", "", reflect.Bool}
+	GridConfigured    = Message{"gridConfigured", "", reflect.Bool}
+	GridCurrents      = Message{"gridCurrents", "", reflect.Bool}
+	GridPower         = Message{"gridPower", "", reflect.Float64}
+	PrioritySoC       = Message{"prioritySoC", "", reflect.Bool}
+	PvConfigured      = Message{"pvConfigured", "", reflect.Bool}
+	PvPower           = Message{"pvPower", "", reflect.Float64}
+)
+
+// loadpoint messages
 var (
 	ActivePhases          = Message{"activePhases", "", reflect.Int64}
 	ChargeConfigured      = Message{"chargeConfigured", "", reflect.Bool} // remove
@@ -39,5 +58,4 @@ var (
 	TargetTime            = Message{"targetTime", "", reflect.Struct}
 	TimerActive           = Message{"timerActive", "", reflect.Bool}
 	TimerSet              = Message{"timerSet", "", reflect.Bool}
-	Title                 = Message{"title", "", reflect.Float64}
 )

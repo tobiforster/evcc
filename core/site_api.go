@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/andig/evcc/api"
+	"github.com/andig/evcc/core/msg"
 )
 
 // SiteAPI is the external site API
@@ -30,7 +31,7 @@ func (site *Site) SetPrioritySoC(soc float64) error {
 	}
 
 	site.PrioritySoC = soc
-	site.publish("prioritySoC", site.PrioritySoC)
+	site.publish(msg.PrioritySoC, site.PrioritySoC)
 
 	return nil
 }
