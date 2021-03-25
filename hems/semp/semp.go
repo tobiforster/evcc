@@ -12,6 +12,7 @@ import (
 
 	"github.com/andig/evcc/api"
 	"github.com/andig/evcc/core"
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/server"
 	"github.com/andig/evcc/util"
 	"github.com/google/uuid"
@@ -348,26 +349,26 @@ func (s *SEMP) allDeviceInfo() (res []DeviceInfo) {
 
 func (s *SEMP) deviceStatus(id int, lp core.LoadPointAPI) DeviceStatus {
 	var chargePower float64
-	if chargePowerP, err := s.cache.GetChecked(id, "chargePower"); err == nil {
+	if chargePowerP, err := s.cache.GetChecked(id, msg.ChargePower); err == nil {
 		chargePower = chargePowerP.Val.(float64)
 	}
 
 	isPV := false
-	if modeP, err := s.cache.GetChecked(id, "mode"); err == nil {
+	if modeP, err := s.cache.GetChecked(id, msg.Mode); err == nil {
 		if mode, ok := modeP.Val.(api.ChargeMode); ok && (mode == api.ModeMinPV || mode == api.ModePV) {
 			isPV = true
 		}
 	}
 
 	status := StatusOff
-	if statusP, err := s.cache.GetChecked(id, "charging"); err == nil {
+	if statusP, err := s.cache.GetChecked(id, msg.Charging); err == nil {
 		if statusP.Val.(bool) {
 			status = StatusOn
 		}
 	}
 
 	var hasVehicle bool
-	if hasVehicleP, err := s.cache.GetChecked(id, "hasVehicle"); err == nil {
+	if hasVehicleP, err := s.cache.GetChecked(id, msg.HasVehicle); err == nil {
 		hasVehicle = hasVehicleP.Val.(bool)
 	}
 
@@ -394,22 +395,22 @@ func (s *SEMP) allDeviceStatus() (res []DeviceStatus) {
 
 func (s *SEMP) planningRequest(id int, lp core.LoadPointAPI) (res PlanningRequest) {
 	mode := api.ModeOff
-	if modeP, err := s.cache.GetChecked(id, "mode"); err == nil {
+	if modeP, err := s.cache.GetChecked(id, msg.Mode); err == nil {
 		mode = modeP.Val.(api.ChargeMode)
 	}
 
 	var connected bool
-	if connectedP, err := s.cache.GetChecked(id, "connected"); err == nil {
+	if connectedP, err := s.cache.GetChecked(id, msg.Connected); err == nil {
 		connected = connectedP.Val.(bool)
 	}
 
 	var charging bool
-	if chargingP, err := s.cache.GetChecked(id, "charging"); err == nil {
+	if chargingP, err := s.cache.GetChecked(id, msg.Charging); err == nil {
 		charging = chargingP.Val.(bool)
 	}
 
 	chargeEstimate := time.Duration(-1)
-	if chargeEstimateP, err := s.cache.GetChecked(id, "chargeEstimate"); err == nil {
+	if chargeEstimateP, err := s.cache.GetChecked(id, msg.ChargeEstimate); err == nil {
 		chargeEstimate = chargeEstimateP.Val.(time.Duration)
 	}
 
@@ -419,7 +420,7 @@ func (s *SEMP) planningRequest(id int, lp core.LoadPointAPI) (res PlanningReques
 	}
 
 	var maxEnergy int
-	if chargeRemainingEnergyP, err := s.cache.GetChecked(id, "chargeRemainingEnergy"); err == nil {
+	if chargeRemainingEnergyP, err := s.cache.GetChecked(id, msg.ChargeRemainingEnergy); err == nil {
 		maxEnergy = int(chargeRemainingEnergyP.Val.(float64))
 	}
 

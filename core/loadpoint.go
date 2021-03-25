@@ -269,7 +269,7 @@ func (lp *LoadPoint) triggerEvent(event string) {
 // publish sends values to UI and databases
 func (lp *LoadPoint) publish(msg msg.Message, val interface{}) {
 	if lp.uiChan != nil {
-		lp.uiChan <- util.Param{Key: msg.Key, Val: val}
+		lp.uiChan <- util.Param{Key: msg, Val: val}
 	}
 }
 

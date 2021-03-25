@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/util"
 	"github.com/google/go-github/v32/github"
 	"github.com/gorilla/mux"
@@ -20,7 +21,7 @@ type watch struct {
 	repo    *Repo
 }
 
-func (u *watch) Send(key string, val interface{}) {
+func (u *watch) Send(key msg.Message, val interface{}) {
 	u.outChan <- util.Param{
 		Key: key,
 		Val: val,
@@ -76,7 +77,7 @@ func (u *watch) findReleaseUpdate(installed string) (*github.RepositoryRelease, 
 func (u *watch) fetchReleaseNotes(installed string) {
 	if notes, err := u.repo.ReleaseNotes(installed); err == nil {
 		u.outChan <- util.Param{
-			Key: "releaseNotes",
+			Key: msg.ReleaseNotes,
 			Val: notes,
 		}
 	} else {

@@ -1,8 +1,10 @@
+//go:build !gokrazy
 // +build !gokrazy
 
 package updater
 
 import (
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/server"
 	"github.com/andig/evcc/util"
 	"github.com/google/go-github/v32/github"
@@ -20,6 +22,6 @@ func Run(log *util.Logger, httpd webServer, tee util.TeeAttacher, outChan chan<-
 	go u.watchReleases(server.Version, c) // endless
 
 	for rel := range c {
-		u.Send("availableVersion", *rel.TagName)
+		u.Send(msg.AvailableVersion, *rel.TagName)
 	}
 }

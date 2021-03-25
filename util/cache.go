@@ -3,6 +3,8 @@ package util
 import (
 	"errors"
 	"sync"
+
+	"github.com/andig/evcc/core/msg"
 )
 
 // Cache is a data store
@@ -39,14 +41,14 @@ func (c *Cache) State() map[string]interface{} {
 
 	for _, param := range c.val {
 		if param.LoadPoint == nil {
-			res[param.Key] = param.Val
+			res[param.Key.Key()] = param.Val
 		} else {
 			lp, ok := lps[*param.LoadPoint]
 			if !ok {
 				lp = make(map[string]interface{})
 				lps[*param.LoadPoint] = lp
 			}
-			lp[param.Key] = param.Val
+			lp[param.Key.Key()] = param.Val
 		}
 	}
 
@@ -94,11 +96,11 @@ func (c *Cache) Get(key string) Param {
 }
 
 // GetChecked returns checked value from cache
-func (c *Cache) GetChecked(id int, key string) (res Param, err error) {
+func (c *Cache) GetChecked(id int, key msg.Message) (res Param, err error) {
 	pid := Param{LoadPoint: &id, Key: key}
 
 	res = c.Get(pid.UniqueID())
-	if res.Key == "" {
+	if !res.Key.IsAMessage() {
 		err = errors.New("not found")
 	}
 

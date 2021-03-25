@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/andig/evcc/core/msg"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -117,7 +118,7 @@ var uiChan chan<- Param
 
 type uiWriter struct {
 	re    *regexp.Regexp
-	level string
+	level msg.Message
 }
 
 func (w *uiWriter) Write(p []byte) (n int, err error) {
@@ -137,13 +138,13 @@ func CaptureLogs(c chan<- Param) {
 	uiChan = c
 
 	for _, l := range loggers {
-		captureLogger("warn", l.Notepad.WARN)
-		captureLogger("error", l.Notepad.ERROR)
-		captureLogger("error", l.Notepad.FATAL)
+		captureLogger(msg.Warn, l.Notepad.WARN)
+		captureLogger(msg.Error, l.Notepad.ERROR)
+		captureLogger(msg.Error, l.Notepad.FATAL)
 	}
 }
 
-func captureLogger(level string, l *log.Logger) {
+func captureLogger(level msg.Message, l *log.Logger) {
 	re, err := regexp.Compile(`^\[[a-zA-Z0-9-]+\s*\] \w+ .{19} `)
 	if err != nil {
 		panic(err)

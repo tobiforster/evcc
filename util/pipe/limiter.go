@@ -45,7 +45,7 @@ func (l *Deduplicator) pipe(in <-chan util.Param, out chan<- util.Param) {
 	for p := range in {
 		key := p.UniqueID()
 		item, cached := l.cache[key]
-		_, filtered := l.filter[p.Key]
+		_, filtered := l.filter[p.Key.Key()]
 
 		// forward if not cached
 		if !cached || !filtered || filtered &&
@@ -115,7 +115,7 @@ func (l *Dropper) pipe(in <-chan util.Param, out chan<- util.Param) {
 	for p := range in {
 		var remove bool
 		for _, filtered := range l.filter {
-			if p.Key == filtered {
+			if p.Key.Key() == filtered {
 				remove = true
 				break
 			}

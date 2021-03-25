@@ -114,7 +114,7 @@ func kv(p util.Param) string {
 	if p.LoadPoint != nil {
 		msg.WriteString(fmt.Sprintf("loadpoints.%d.", *p.LoadPoint))
 	}
-	msg.WriteString(p.Key)
+	msg.WriteString(p.Key.Key())
 	msg.WriteString("\":")
 	msg.WriteString(val)
 

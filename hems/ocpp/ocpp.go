@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/andig/evcc/core"
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/hems/ocpp/profile"
 	"github.com/andig/evcc/util"
 	"github.com/denisbrodbeck/machineid"
@@ -85,7 +86,7 @@ func (s *OCPP) Run() {
 			connector := id + 1
 
 			status := ocppcore.ChargePointStatusAvailable
-			if statusP, err := s.cache.GetChecked(id, "charging"); err == nil {
+			if statusP, err := s.cache.GetChecked(id, msg.Charging); err == nil {
 				if statusP.Val.(bool) {
 					status = ocppcore.ChargePointStatusCharging
 				}

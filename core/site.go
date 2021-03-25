@@ -130,7 +130,7 @@ func meterCapabilities(name string, meter interface{}) string {
 
 // DumpConfig site configuration
 func (site *Site) DumpConfig() {
-	site.publish(msg.Title, site.Title)
+	site.publish(msg.SiteTitle, site.Title)
 
 	site.log.INFO.Println("site config:")
 	site.log.INFO.Printf("  meters:    grid %s pv %s battery %s",
@@ -203,7 +203,7 @@ func (site *Site) DumpConfig() {
 // publish sends values to UI and databases
 func (site *Site) publish(msg msg.Message, val interface{}) {
 	if site.uiChan != nil {
-		site.uiChan <- util.Param{Key: msg.Key, Val: val}
+		site.uiChan <- util.Param{Key: msg, Val: val}
 	}
 }
 
@@ -216,7 +216,7 @@ func (site *Site) updateMeter(msg msg.Message, meter api.Meter, power *float64) 
 
 	*power = value // update value if no error
 
-	name := strings.TrimSuffix(msg.Key, "Power")
+	name := strings.TrimSuffix(msg.Key(), "Power")
 	site.log.DEBUG.Printf("%s power: %.0fW", name, *power)
 	site.publish(msg, *power)
 
@@ -235,7 +235,7 @@ func (site *Site) updateMeters() error {
 		}, retryOptions...)
 
 		if err != nil {
-			name := strings.TrimSuffix(msg.Key, "Power")
+			name := strings.TrimSuffix(msg.Key(), "Power")
 			err = fmt.Errorf("updating %s meter: %v", name, err)
 			site.log.ERROR.Println(err)
 		}

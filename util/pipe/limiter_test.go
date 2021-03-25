@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/andig/evcc/core/msg"
 	"github.com/andig/evcc/util"
 	"github.com/benbjohnson/clock"
 )
@@ -17,7 +18,7 @@ func TestLimiter(t *testing.T) {
 	in := make(chan util.Param)
 	out := l.Pipe(in)
 
-	p := util.Param{Key: "k", Val: 1}
+	p := util.Param{Key: msg.Error, Val: 1}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {
@@ -60,14 +61,14 @@ func TestDeduplicator(t *testing.T) {
 	in := make(chan util.Param)
 	out := l.Pipe(in)
 
-	p := util.Param{Key: "k", Val: 1}
+	p := util.Param{Key: msg.Error, Val: 1}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {
 		t.Errorf("unexpected param %v", o)
 	}
 
-	p = util.Param{Key: "k", Val: 2}
+	p = util.Param{Key: msg.Error, Val: 2}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {
@@ -75,21 +76,21 @@ func TestDeduplicator(t *testing.T) {
 	}
 
 	// allow nils
-	p = util.Param{Key: "k", Val: nil}
+	p = util.Param{Key: msg.Error, Val: nil}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {
 		t.Errorf("unexpected param %v", o)
 	}
 
-	p = util.Param{Key: "filtered", Val: 3}
+	p = util.Param{Key: msg.Warn, Val: 3}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {
 		t.Errorf("unexpected param %v", o)
 	}
 
-	p = util.Param{Key: "filtered", Val: 4}
+	p = util.Param{Key: msg.Warn, Val: 4}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {
@@ -115,7 +116,7 @@ func TestDeduplicator(t *testing.T) {
 	}
 
 	// allow nils
-	p = util.Param{Key: "filtered", Val: nil}
+	p = util.Param{Key: msg.Warn, Val: nil}
 	in <- p
 
 	if o := <-out; o.Key != p.Key || o.Val != p.Val {

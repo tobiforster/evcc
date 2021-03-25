@@ -43,7 +43,7 @@ func (h *Hub) apply(ev Event, template string) (string, error) {
 	// get all values from cache
 	for _, p := range h.cache.All() {
 		if p.LoadPoint == nil || ev.LoadPoint == p.LoadPoint {
-			attr[p.Key] = p.Val
+			attr[p.Key.Key()] = p.Val
 		}
 	}
 

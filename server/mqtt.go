@@ -125,7 +125,7 @@ func (m *MQTT) Run(site core.SiteAPI, in <-chan util.Param) {
 		}
 
 		// value
-		topic += "/" + p.Key
+		topic += "/" + p.Key.Key()
 		m.publish(topic, false, p.Val)
 	}
 }

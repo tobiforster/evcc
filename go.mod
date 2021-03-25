@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/PuerkitoBio/goquery v1.6.1
+	github.com/alvaroloes/enumer v1.1.2 // indirect
 	github.com/andig/evcc-config v0.0.0-20210303114953-771766db76d1
 	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef
 	github.com/avast/retry-go v3.0.0+incompatible

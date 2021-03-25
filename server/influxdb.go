@@ -118,7 +118,7 @@ func (m *Influx) Run(loadPoints []core.LoadPointAPI, in <-chan util.Param) {
 
 		// write asynchronously
 		m.log.TRACE.Printf("write %s=%v (%v)", param.Key, param.Val, tags)
-		p := influxdb2.NewPoint(param.Key, tags, fields, time.Now())
+		p := influxdb2.NewPoint(param.Key.Key(), tags, fields, time.Now())
 		writer.WritePoint(p)
 	}
 
