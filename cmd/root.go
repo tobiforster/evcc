@@ -152,19 +152,6 @@ func run(cmd *cobra.Command, args []string) {
 	uri := viper.GetString("uri")
 	log.INFO.Println("listening at", uri)
 
-	// setup sponsorship
-	if conf.SponsorToken != "" {
-		configureSponsorship(conf.SponsorToken)
-	}
-
-	// setup mqtt client listener
-	if conf.Mqtt.Broker != "" {
-		configureMQTT(conf.Mqtt)
-	}
-
-	// setup javascript VMs
-	configureJavascript(conf.Javascript)
-
 	// setup environment
 	if err := configureEnvironment(conf); err != nil {
 		log.FATAL.Fatal(err)
