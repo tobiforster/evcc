@@ -10,7 +10,7 @@ import (
 
 var client *githubv4.Client
 
-func init() {
+func createClient() {
 	token := util.Getenv("GITHUB_TOKEN")
 
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
@@ -48,11 +48,16 @@ type sponsorships struct {
 	}
 }
 
-// Get returns the list of sponsors
-func Get(ctx context.Context) ([]Sponsor, error) {
+// ListFromGithub returns the list of sponsors
+func ListFromGithub(ctx context.Context) ([]Sponsor, error) {
 	var sponsors []Sponsor
 	var q sponsorships
 	var cursor string
+
+	// this will require the GITHUB_TOKEN
+	if client == nil {
+		createClient()
+	}
 
 	for {
 		err := client.Query(ctx, &q, map[string]interface{}{

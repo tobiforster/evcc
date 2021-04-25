@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andig/evcc/soc/server/auth"
 	"github.com/andig/evcc/util"
+	"github.com/andig/evcc/util/sponsor"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
@@ -127,7 +127,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authorized, err := auth.IsAuthorized(user.Login)
+	authorized, err := sponsor.IsAuthorized(user.Login)
 	if err != nil {
 		templateError(w, r, err.Error())
 		return
@@ -146,7 +146,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwt, err := auth.AuthorizedToken(user.Name, user.Login)
+	jwt, err := sponsor.CreateAuthorizedToken(user.Name, user.Login)
 	if err != nil {
 		templateError(w, r, err.Error())
 		return
@@ -157,7 +157,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 <h1>Aktiv</h1>
 <p class="lead">Github Sponsorship für evcc ist aktiv. Der folgende Token kann für den Zugriff auf evcc cloud genutzt werden.</p>
 <p class="lead">Der Code ist %d Tage gültig und kann jederzeit neu erzeugt werden.</p>
-<p class="lead"><code>`+jwt+`</code></p>`, auth.TokenExpiry),
+<p class="lead"><code>`+jwt+`</code></p>`, sponsor.TokenExpiry),
 		)})
 }
 

@@ -1,4 +1,4 @@
-package auth
+package sponsor
 
 import (
 	"context"
@@ -6,14 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andig/evcc/soc/server/auth/sponsor"
 	"github.com/andig/evcc/util"
 	"github.com/dgrijalva/jwt-go"
 )
 
 var (
 	TokenExpiry = 365 // days
-	tokenSecret = util.Getenv("JWT_TOKEN_SECRET")
+	tokenSecret = util.Getenv("JWT_TOKEN_SECRET", "undefined")
 )
 
 var (
@@ -33,7 +32,7 @@ func keyFunc(token *jwt.Token) (interface{}, error) {
 	return []byte(tokenSecret), nil
 }
 
-func AuthorizedToken(name, login string) (string, error) {
+func CreateAuthorizedToken(name, login string) (string, error) {
 	expiry := time.Now().Add(24 * time.Hour * time.Duration(TokenExpiry))
 	claims := Claims{
 		Username: name,
@@ -81,11 +80,10 @@ func IsAuthorized(login string) (bool, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		all, err := sponsor.Get(ctx)
+		all, err := ListFromGithub(ctx)
 		if err != nil {
 			return false, err
 		}
-		// fmt.Println("sponsors:", all)
 
 		updated = time.Now()
 

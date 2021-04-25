@@ -9,7 +9,7 @@ import (
 	"github.com/andig/evcc/internal/vehicle"
 	"github.com/andig/evcc/internal/vehicle/cloud"
 	"github.com/andig/evcc/soc/proto/pb"
-	"github.com/andig/evcc/soc/server/auth"
+	"github.com/andig/evcc/util/sponsor"
 )
 
 var vehicleID int64
@@ -23,15 +23,15 @@ type tokenizer interface {
 	GetToken() string
 }
 
-func (s *Server) isAuthorized(r tokenizer) (string, *auth.Claims, error) {
+func (s *Server) isAuthorized(r tokenizer) (string, *sponsor.Claims, error) {
 	token := r.GetToken()
 
-	claims, err := auth.ParseToken(token)
+	claims, err := sponsor.ParseToken(token)
 	if err != nil {
 		return token, claims, err
 	}
 
-	authorized, err := auth.IsAuthorized(claims.Subject)
+	authorized, err := sponsor.IsAuthorized(claims.Subject)
 	if err == nil && !authorized {
 		err = cloud.ErrNotAuthorized
 	}
