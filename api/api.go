@@ -103,6 +103,7 @@ type Vehicle interface {
 	Identifier
 	Title() string
 	Capacity() int64
+	MatchID(string) bool
 }
 
 // VehicleFinishTimer provides estimated charge cycle finish time

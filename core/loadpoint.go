@@ -588,7 +588,7 @@ func (lp *LoadPoint) findActiveVehicle() {
 
 			// find exact match
 			for _, vehicle := range lp.vehicles {
-				if vid, err := vehicle.Identify(); err == nil && vid == id {
+				if vehicle.MatchID(id) {
 					lp.setActiveVehicle(vehicle)
 					return
 				}
@@ -596,7 +596,7 @@ func (lp *LoadPoint) findActiveVehicle() {
 
 			// find placeholder match
 			for _, vehicle := range lp.vehicles {
-				if vid, err := vehicle.Identify(); err == nil && vid == "*" {
+				if vehicle.MatchID("*") {
 					lp.setActiveVehicle(vehicle)
 					return
 				}

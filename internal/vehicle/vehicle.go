@@ -33,6 +33,21 @@ func (m *embed) Identify() (string, error) {
 	return m.Identifier_, nil
 }
 
+// MatchID implements the vehicle.MatchID interface
+func (m *embed) MatchID(id string) bool {
+	vid, err := m.Identify()
+	if err != nil {
+		return false
+	}
+
+	// placeholder match
+	if id == "*" && vid != "" {
+		return true
+	}
+
+	return id == vid
+}
+
 //go:generate go run ../../cmd/tools/decorate.go -f decorateVehicle -b api.Vehicle -t "api.ChargeState,Status,func() (api.ChargeStatus, error)" -t "api.VehicleRange,Range,func() (int64, error)"
 
 // Vehicle is an api.Vehicle implementation with configurable getters and setters.
